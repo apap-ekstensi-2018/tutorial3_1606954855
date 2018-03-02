@@ -20,8 +20,8 @@ public class StudentController {
 	public StudentController(){
 		studentService = new InMemoryStudentService();
 	}
-	@Autowired
-    StudentService studentDAO;
+//	@Autowired
+//    StudentService studentDAO;
 	
 	@RequestMapping("/student/add")
 	public String add(@RequestParam(value = "npm", required = true) String npm, 
@@ -39,7 +39,7 @@ public class StudentController {
 		return "view";
 	}
 	
-	@RequestMapping("/student/view/{npm}")
+	@RequestMapping(value = {"/student/view/", "/student/view/{npm}"})
 	public String viewPath (Model model, @PathVariable String npm){
 		StudentModel student = studentService.selectStudent(npm);
 		if (student != null) {
@@ -51,17 +51,6 @@ public class StudentController {
 		}
 	}
 	
-//	@RequestMapping("/student/view/{npm}")
-//	public String viewPath (Model model, @PathVariable String npm){
-//		StudentModel student = studentDAO.selectStudent (npm);
-//		if (student != null) {
-//			model.addAttribute("student", student);
-//			return "view";
-//		}else {
-//			model.addAttribute("npm", npm);
-//			return "not-found";
-//		}
-//	}
 	
 	@RequestMapping("/student/viewall")
 	public String view (Model model){
@@ -77,6 +66,7 @@ public class StudentController {
 			studentService.deleteStudent(npm);
 			return "delete";
 		}else {
+			model.addAttribute("npm", npm);
 			return "not-found";
 		}
 		
