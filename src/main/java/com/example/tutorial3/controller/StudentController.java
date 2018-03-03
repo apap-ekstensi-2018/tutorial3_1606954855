@@ -2,7 +2,6 @@ package com.example.tutorial3.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.example.tutorial3.service.InMemoryStudentService;
 import com.example.tutorial3.service.StudentService;
 import com.example.tutorial3.model.StudentModel;
+import java.util.Optional;
 
 
 @Controller
@@ -20,8 +20,7 @@ public class StudentController {
 	public StudentController(){
 		studentService = new InMemoryStudentService();
 	}
-//	@Autowired
-//    StudentService studentDAO;
+
 	
 	@RequestMapping("/student/add")
 	public String add(@RequestParam(value = "npm", required = true) String npm, 
@@ -33,24 +32,32 @@ public class StudentController {
 	}
 	
 	@RequestMapping("/student/view")
-	public String view (Model model, @RequestParam(value = "npm", required = true) String npm){
-		StudentModel student = studentService.selectStudent(npm);
+	public String view (Model model, @RequestParam(value = "npm", required = true) Optional<String> npm){
+		StudentModel student = studentService.selectStudent(npm.get());
 		model.addAttribute("student", student);
 		return "view";
 	}
 	
 	@RequestMapping(value = {"/student/view/", "/student/view/{npm}"})
-	public String viewPath (Model model, @PathVariable String npm){
-		StudentModel student = studentService.selectStudent(npm);
-		if (student != null) {
-			model.addAttribute("student", student);
-			return "view";
-		}else {
+	public String viewPath (Model model, @PathVariable Optional<String> npm){
+		if(npm.isPresent()) {
+			StudentModel student = studentService.selectStudent(npm.get());
+			if (student != null) {
+				model.addAttribute("student", student);
+				return "view";
+			}
+			else{
+				model.addAttribute("npm", npm);
+				return "not-found";
+			}
+		}
+		
+		else {
 			model.addAttribute("npm", npm);
 			return "not-found";
 		}
+		
 	}
-	
 	
 	@RequestMapping("/student/viewall")
 	public String view (Model model){
@@ -59,12 +66,17 @@ public class StudentController {
 		return "viewall";
 	}
 	
-	@RequestMapping("/student/delete/{npm}")
-	public String delete (Model model, @PathVariable String npm){
-		StudentModel student = studentService.selectStudent(npm);
-		if (student != null) {
-			studentService.deleteStudent(npm);
-			return "delete";
+	@RequestMapping(value = {"/student/delete/", "/student/delete/{npm}"})
+	public String delete (Model model, @PathVariable Optional<String> npm){
+		if (npm.isPresent()) {
+			StudentModel student = studentService.selectStudent(npm.get());
+			if (student != null) {
+				studentService.deleteStudent(npm.get());
+				return "delete";
+			}else {
+				model.addAttribute("npm", npm);
+				return "not-found";
+			}
 		}else {
 			model.addAttribute("npm", npm);
 			return "not-found";
