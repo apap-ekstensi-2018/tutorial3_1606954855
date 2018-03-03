@@ -31,7 +31,6 @@ public class InMemoryStudentService implements StudentService {
 	@Override
 	public void deleteStudent(String npm){
 		//Implement
-		int hasil = 0;
 		for(int i=0;i<studentList.size();i++){
 			if(studentList.get(i).getNpm().equals(npm)){
 				studentList.remove(i);
